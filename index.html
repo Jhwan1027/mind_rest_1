@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마음쉼 - 명상 앱</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7b8cde" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="마음쉼" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+</head>
+<body>
+  <div id="app">
+    <nav class="nav">
+      <div class="nav-top">
+        <div class="nav-brand">🌿 마음쉼</div>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-page="home">홈</button>
+        <button class="nav-tab" data-page="breathing">호흡</button>
+        <button class="nav-tab" data-page="timer">명상</button>
+        <button class="nav-tab" data-page="stats">기록</button>
+        <button class="nav-tab" data-page="settings">설정</button>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- Home -->
+      <div id="page-home" class="page active">
+        <div class="home-hero">
+          <div class="hero-circle" id="hero-circle"></div>
+          <h1 class="hero-title" id="hero-greeting">오늘도 잠시<br/>쉬어가세요</h1>
+          <p class="hero-sub">호흡을 고르고, 마음을 비워보세요</p>
+        </div>
+        <div class="home-cards">
+          <div class="card" data-goto="breathing">
+            <div class="card-icon">🌬️</div>
+            <div class="card-body">
+              <div class="card-title">호흡 가이드</div>
+              <div class="card-desc">들숨과 날숨을 따라 호흡을 조절해요</div>
+            </div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card" data-goto="timer">
+            <div class="card-icon">⏳</div>
+            <div class="card-body">
+              <div class="card-title">명상 타이머</div>
+              <div class="card-desc">원하는 시간 동안 조용히 명상해요</div>
+            </div>
+            <div class="card-arrow">›</div>
+          </div>
+          <div class="card" data-goto="stats">
+            <div class="card-icon">📊</div>
+            <div class="card-body">
+              <div class="card-title">나의 기록</div>
+              <div class="card-desc">꾸준한 명상 습관을 확인해요</div>
+            </div>
+            <div class="card-arrow">›</div>
+          </div>
+        </div>
+        <div class="today-streak" id="home-streak"></div>
+      </div>
+
+      <!-- Breathing -->
+      <div id="page-breathing" class="page">
+        <h2 class="page-title">호흡 가이드</h2>
+        <div class="breathing-presets">
+          <button class="preset-btn active" data-inhale="4" data-hold="0" data-exhale="4" data-name="기본 4-4">기본 4-4</button>
+          <button class="preset-btn" data-inhale="4" data-hold="7" data-exhale="8" data-name="4-7-8">4-7-8</button>
+          <button class="preset-btn" data-inhale="5" data-hold="0" data-exhale="5" data-name="5-5 균형">5-5 균형</button>
+          <button class="preset-btn" data-inhale="6" data-hold="2" data-exhale="8" data-name="박스 호흡">박스 호흡</button>
+        </div>
+        <div class="breathing-arena">
+          <div class="breath-ring" id="breath-ring">
+            <div class="breath-inner">
+              <div class="breath-label" id="breath-label">시작</div>
+              <div class="breath-count" id="breath-count"></div>
+            </div>
+          </div>
+        </div>
+        <div class="breathing-info">
+          <span id="breath-phase-desc">준비가 되면 시작하세요</span>
+        </div>
+        <div class="mood-row">
+          <span class="mood-label">지금 기분</span>
+          <div class="mood-picker" id="breath-mood-before">
+            <button class="mood-btn" data-val="1">😢</button>
+            <button class="mood-btn" data-val="2">😟</button>
+            <button class="mood-btn" data-val="3">😐</button>
+            <button class="mood-btn" data-val="4">😊</button>
+            <button class="mood-btn" data-val="5">😄</button>
+          </div>
+        </div>
+        <div class="breathing-controls">
+          <button class="btn-primary" id="breath-start-btn">시작</button>
+          <select class="duration-select" id="breath-duration">
+            <option value="1">1분</option>
+            <option value="3" selected>3분</option>
+            <option value="5">5분</option>
+            <option value="10">10분</option>
+          </select>
+        </div>
+        <div class="breathing-timer" id="breath-timer-display"></div>
+      </div>
+
+      <!-- Timer -->
+      <div id="page-timer" class="page">
+        <h2 class="page-title">명상 타이머</h2>
+        <div class="timer-sound-row">
+          <span class="sound-label">배경음</span>
+          <div class="sound-btns">
+            <button class="sound-btn active" data-sound="none">없음</button>
+            <button class="sound-btn" data-sound="rain">🌧️ 빗소리</button>
+            <button class="sound-btn" data-sound="forest">🌲 숲소리</button>
+            <button class="sound-btn" data-sound="ocean">🌊 파도</button>
+            <button class="sound-btn" data-sound="campfire">🔥 모닥불</button>
+            <button class="sound-btn" data-sound="bowl">🎵 싱잉볼</button>
+            <button class="sound-btn" data-sound="pink">🌸 핑크노이즈</button>
+            <button class="sound-btn" data-sound="white">⬜ 화이트노이즈</button>
+          </div>
+          <div class="volume-row hidden" id="volume-row">
+            <span class="volume-icon" id="volume-icon">🔊</span>
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="80"/>
+            <span class="volume-pct" id="volume-pct">80%</span>
+          </div>
+        </div>
+        <div class="timer-display-wrap">
+          <svg class="timer-ring-svg" viewBox="0 0 220 220">
+            <circle class="ring-bg" cx="110" cy="110" r="95"/>
+            <circle class="ring-progress" id="timer-ring" cx="110" cy="110" r="95"/>
+          </svg>
+          <div class="timer-center">
+            <div class="timer-digits" id="timer-digits">00:00</div>
+            <div class="timer-total" id="timer-total-display"></div>
+          </div>
+        </div>
+        <div class="timer-duration-row">
+          <button class="dur-btn" data-min="5">5분</button>
+          <button class="dur-btn active" data-min="10">10분</button>
+          <button class="dur-btn" data-min="15">15분</button>
+          <button class="dur-btn" data-min="20">20분</button>
+          <button class="dur-btn" data-min="30">30분</button>
+          <button class="dur-btn" data-min="0">직접입력</button>
+        </div>
+        <div class="custom-dur-row hidden" id="custom-dur-row">
+          <input type="number" id="custom-min" min="1" max="180" placeholder="분" class="custom-input"/>
+          <span>분</span>
+        </div>
+        <div class="mood-row">
+          <span class="mood-label">지금 기분</span>
+          <div class="mood-picker" id="timer-mood-before">
+            <button class="mood-btn" data-val="1">😢</button>
+            <button class="mood-btn" data-val="2">😟</button>
+            <button class="mood-btn" data-val="3">😐</button>
+            <button class="mood-btn" data-val="4">😊</button>
+            <button class="mood-btn" data-val="5">😄</button>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-secondary" id="timer-reset-btn">초기화</button>
+          <button class="btn-primary" id="timer-start-btn">시작</button>
+        </div>
+        <div class="end-bell-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="end-bell" checked />
+            <span class="toggle-track"></span>
+            <span>종료 시 종소리</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div id="page-stats" class="page">
+        <h2 class="page-title">나의 기록</h2>
+        <div class="stats-summary">
+          <div class="stat-box">
+            <div class="stat-num" id="stat-total-sessions">0</div>
+            <div class="stat-label">총 세션</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="stat-total-minutes">0</div>
+            <div class="stat-label">총 분</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="stat-streak">0</div>
+            <div class="stat-label">연속 일수</div>
+          </div>
+        </div>
+        <div class="calendar-section">
+          <h3 class="section-title">이번 달 기록</h3>
+          <div class="calendar" id="calendar"></div>
+        </div>
+        <div id="mood-stats-section" class="mood-stats" style="display:none;">
+          <div class="mood-stats-title">감정 변화 분석</div>
+          <div class="mood-stats-value" id="mood-stats-value"></div>
+          <div class="mood-stats-count" id="mood-stats-count"></div>
+        </div>
+        <div class="history-section">
+          <h3 class="section-title">최근 세션</h3>
+          <div class="history-list" id="history-list"></div>
+        </div>
+        <button class="btn-danger" id="clear-data-btn">기록 초기화</button>
+      </div>
+
+      <!-- Settings -->
+      <div id="page-settings" class="page">
+        <h2 class="page-title">설정</h2>
+
+        <div class="settings-section">
+          <div class="settings-profile-header">
+            <div class="avatar" id="settings-avatar">?</div>
+            <div>
+              <div class="settings-displayname" id="settings-displayname"></div>
+              <div class="settings-subtext" id="settings-username-display"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">닉네임 변경</div>
+          <input type="text" id="settings-name-input" class="settings-input" placeholder="새 닉네임 (1~12자)"/>
+          <div class="settings-feedback" id="settings-name-feedback"></div>
+          <button class="btn-primary settings-full-btn" id="settings-name-btn">저장</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">비밀번호 변경</div>
+          <input type="password" id="settings-cur-pw" class="settings-input" placeholder="현재 비밀번호"/>
+          <input type="password" id="settings-new-pw" class="settings-input" placeholder="새 비밀번호 (6자 이상)"/>
+          <input type="password" id="settings-new-pw2" class="settings-input" placeholder="새 비밀번호 확인"/>
+          <div class="settings-feedback" id="settings-pw-feedback"></div>
+          <button class="btn-primary settings-full-btn" id="settings-pw-btn">변경</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">테마</div>
+          <div class="theme-btns">
+            <button class="theme-btn" data-theme-btn="dark">🌙 다크</button>
+            <button class="theme-btn" data-theme-btn="light">☀️ 라이트</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">계정</div>
+          <button class="btn-secondary settings-full-btn" id="settings-logout-btn">로그아웃</button>
+          <button class="btn-danger settings-full-btn" id="settings-delete-btn">회원 탈퇴</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Completion Modal -->
+  <div class="modal-overlay hidden" id="complete-modal">
+    <div class="modal">
+      <div class="modal-icon">🎉</div>
+      <div class="modal-title">명상 완료!</div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="mood-after-section">
+        <div class="mood-after-label">명상 후 기분은?</div>
+        <div class="mood-picker" id="modal-mood-after">
+          <button class="mood-btn" data-val="1">😢</button>
+          <button class="mood-btn" data-val="2">😟</button>
+          <button class="mood-btn" data-val="3">😐</button>
+          <button class="mood-btn" data-val="4">😊</button>
+          <button class="mood-btn" data-val="5">😄</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="modal-close-btn">확인</button>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="hidden">
+    <div class="auth-card">
+      <div class="auth-logo">🌿</div>
+      <div class="auth-title">마음쉼</div>
+      <div class="auth-subtitle">나만의 명상 공간</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth="login">로그인</button>
+        <button class="auth-tab" data-auth="signup">회원가입</button>
+      </div>
+      <div id="auth-login-form" class="auth-form">
+        <input type="email" id="login-email" placeholder="이메일" class="auth-input" autocomplete="email"/>
+        <input type="password" id="login-pw" placeholder="비밀번호" class="auth-input" autocomplete="current-password"/>
+        <div class="auth-error" id="login-error"></div>
+        <button class="btn-primary auth-btn" id="login-btn">로그인</button>
+      </div>
+      <div id="auth-signup-form" class="auth-form hidden">
+        <input type="email" id="signup-email" placeholder="이메일" class="auth-input" autocomplete="email"/>
+        <input type="text" id="signup-name" placeholder="닉네임 (1~12자)" class="auth-input"/>
+        <input type="password" id="signup-pw" placeholder="비밀번호 (6자 이상)" class="auth-input" autocomplete="new-password"/>
+        <input type="password" id="signup-pw2" placeholder="비밀번호 확인" class="auth-input" autocomplete="new-password"/>
+        <div class="auth-error" id="signup-error"></div>
+        <button class="btn-primary auth-btn" id="signup-btn">가입하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bubble-canvas"></div>
+
+  <script>
+    // Firebase CDN 로드 실패 대비: 10초 후에도 로딩 중이면 오류 표시
+    setTimeout(function() {
+      var ls = document.getElementById('loading-screen');
+      if (ls && !ls.classList.contains('hidden')) {
+        ls.innerHTML = '<div style="text-align:center;padding:24px;color:#e07070;max-width:300px">'
+          + '<div style="font-size:2rem;margin-bottom:12px">⚠️</div>'
+          + '<p style="font-weight:600;margin-bottom:8px">앱 로드에 실패했어요</p>'
+          + '<p style="font-size:0.82rem;color:#9aa0bc;line-height:1.6">인터넷 연결을 확인하거나<br/>아래 버튼을 눌러 캐시를 지우고<br/>다시 시도해주세요</p>'
+          + '<button onclick="clearSWAndReload()" style="margin-top:16px;padding:10px 20px;border-radius:20px;border:none;background:#7b8cde;color:#fff;font-size:0.9rem;cursor:pointer;font-weight:600">캐시 초기화 후 재시작</button>'
+          + '</div>';
+      }
+    }, 10000);
+
+    function clearSWAndReload() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          Promise.all(regs.map(function(r) { return r.unregister(); }))
+            .then(function() { caches.keys().then(function(keys) {
+              Promise.all(keys.map(function(k) { return caches.delete(k); }))
+                .then(function() { location.reload(); });
+            }); });
+        });
+      } else { location.reload(); }
+    }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
