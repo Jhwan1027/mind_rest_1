@@ -1,10 +1,10 @@
-const CACHE = 'maeumsim-v3';
+const CACHE = 'maeumsim-v4';
 const ASSETS = [
-  '/', '/index.html', '/style.css', '/app.js', '/config.js', '/icon.svg',
-  '/modules/state.js', '/modules/firebase.js', '/modules/auth.js', '/modules/db.js',
-  '/modules/ui.js', '/modules/audio.js', '/modules/breathing.js', '/modules/timer.js',
-  '/modules/stats.js', '/modules/home.js', '/modules/settings.js', '/modules/bubbles.js',
-  '/firebase/firebase-app.js', '/firebase/firebase-auth.js', '/firebase/firebase-firestore.js',
+  './', './index.html', './style.css', './app.js', './config.js', './icon.svg',
+  './modules/state.js', './modules/firebase.js', './modules/auth.js', './modules/db.js',
+  './modules/ui.js', './modules/audio.js', './modules/breathing.js', './modules/timer.js',
+  './modules/stats.js', './modules/home.js', './modules/settings.js', './modules/bubbles.js',
+  './firebase/firebase-app.js', './firebase/firebase-auth.js', './firebase/firebase-firestore.js',
 ];
 
 self.addEventListener('install', e => {
