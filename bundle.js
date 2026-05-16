@@ -78,8 +78,15 @@ const soundState = {
   volume: 0.8,
   volumes: { white:0.8, rain:0.8, forest:0.8, ocean:0.8, campfire:0.8, pink:0.8, bowl:0.8 },
 };
-const BASE_GAIN = { white:0.15, rain:0.25, forest:0.3, ocean:0.4, campfire:0.35, pink:0.28, bowl:1.0 };
-var audioCtx = null, noiseNode = null, gainNode = null, bowlTimer = null;
+const SOUND_FILES = {
+  rain:     'audio/rain.ogg',
+  forest:   'audio/forest.ogg',
+  ocean:    'audio/ocean.ogg',
+  campfire: 'audio/campfire.ogg',
+  bowl:     'audio/bowl.ogg',
+};
+var audioCtx = null, noiseNode = null, gainNode = null;
+var currentAudio = null, bowlTimer = null;
 
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -94,64 +101,33 @@ function updateVolumeUI(vol) {
     pct === 0 ? icons[0] : pct <= 33 ? icons[1] : pct <= 66 ? icons[2] : icons[3];
 }
 function stopSound() {
-  if (bowlTimer) { clearInterval(bowlTimer); bowlTimer = null; }
+  if (bowlTimer) { clearTimeout(bowlTimer); bowlTimer = null; }
   if (noiseNode) { try { noiseNode.stop(); } catch(e){} noiseNode = null; }
   if (gainNode)  { gainNode.disconnect(); gainNode = null; }
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
 }
-function playSound(type) {
-  stopSound();
-  if (type === 'none') return;
+function playBowlFile() {
+  if (soundState.current !== 'bowl') return;
+  var audio = new Audio(SOUND_FILES.bowl);
+  currentAudio = audio;
+  audio.volume = soundState.volume;
+  audio.play().catch(function(){});
+  audio.addEventListener('ended', function() {
+    currentAudio = null;
+    if (soundState.current !== 'bowl') return;
+    bowlTimer = setTimeout(playBowlFile, 25000);
+  });
+}
+function playGeneratedNoise(type) {
   var ctx = getAudioCtx();
   gainNode = ctx.createGain();
-  gainNode.gain.value = 0.15;
   gainNode.connect(ctx.destination);
-  if (type === 'bowl') {
-    gainNode.gain.value = soundState.volume;
-    var strikeBowl = function() {
-      if (!gainNode) return;
-      var now = ctx.currentTime;
-      [[432,0.4,10],[864,0.12,8],[1296,0.05,6]].forEach(function(arr) {
-        var freq=arr[0], amp=arr[1], dur=arr[2];
-        var osc = ctx.createOscillator(), g = ctx.createGain();
-        osc.connect(g); g.connect(gainNode);
-        osc.frequency.value = freq; osc.type = 'sine';
-        g.gain.setValueAtTime(0, now);
-        g.gain.linearRampToValueAtTime(amp, now + 0.5);
-        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-        osc.start(now); osc.stop(now + dur);
-      });
-    };
-    strikeBowl();
-    bowlTimer = setInterval(strikeBowl, 14000);
-    return;
-  }
   var bufSize = ctx.sampleRate * 3;
   var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
   var data = buf.getChannelData(0);
   if (type === 'white') {
     for (var i=0; i<bufSize; i++) data[i] = Math.random()*2-1;
-  } else if (type === 'rain') {
-    for (var i=0; i<bufSize; i++) {
-      data[i] = (Math.random()*2-1)*0.8;
-      if (Math.random() < 0.001) data[i] *= 3;
-    }
-  } else if (type === 'forest') {
-    for (var i=0; i<bufSize; i++)
-      data[i] = Math.sin(i*0.02+Math.random()*0.5)*0.3*(Math.random()*0.4+0.6);
-  } else if (type === 'ocean') {
-    for (var i=0; i<bufSize; i++) {
-      var wave = Math.sin(i/ctx.sampleRate*0.3*Math.PI*2);
-      data[i] = wave*(Math.random()*0.3+0.1);
-    }
-  } else if (type === 'campfire') {
-    var crackle = 0;
-    for (var i=0; i<bufSize; i++) {
-      var w = Math.random()*2-1;
-      crackle = 0.97*crackle+w*0.03;
-      var pop = Math.random()<0.0008 ? (Math.random()*2-1)*1.2 : 0;
-      data[i] = crackle*0.6+pop;
-    }
-  } else if (type === 'pink') {
+  } else {
     var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
     for (var i=0; i<bufSize; i++) {
       var w = Math.random()*2-1;
@@ -166,16 +142,22 @@ function playSound(type) {
   noiseNode.buffer = buf;
   noiseNode.loop = true;
   var filter = ctx.createBiquadFilter();
-  if      (type==='rain')     { filter.type='highpass'; filter.frequency.value=800;  gainNode.gain.value=0.25; }
-  else if (type==='forest')   { filter.type='bandpass'; filter.frequency.value=600;  filter.Q.value=0.5; gainNode.gain.value=0.3; }
-  else if (type==='ocean')    { filter.type='lowpass';  filter.frequency.value=400;  gainNode.gain.value=0.4; }
-  else if (type==='campfire') { filter.type='lowpass';  filter.frequency.value=700;  gainNode.gain.value=0.35; }
-  else if (type==='pink')     { filter.type='lowpass';  filter.frequency.value=2000; gainNode.gain.value=0.28; }
-  else                        { filter.type='lowpass';  filter.frequency.value=3000; }
-  gainNode.gain.value *= soundState.volume;
+  filter.type = 'lowpass';
+  filter.frequency.value = type === 'pink' ? 2000 : 3000;
+  gainNode.gain.value = (type === 'pink' ? 0.28 : 0.15) * soundState.volume;
   noiseNode.connect(filter);
   filter.connect(gainNode);
   noiseNode.start();
+}
+function playSound(type) {
+  stopSound();
+  if (type === 'none') return;
+  if (type === 'white' || type === 'pink') { playGeneratedNoise(type); return; }
+  if (type === 'bowl') { playBowlFile(); return; }
+  currentAudio = new Audio(SOUND_FILES[type]);
+  currentAudio.loop = true;
+  currentAudio.volume = soundState.volume;
+  currentAudio.play().catch(function(){});
 }
 function playBell() {
   var ctx = getAudioCtx();
@@ -190,10 +172,12 @@ function playBell() {
   });
 }
 function setGainVolume(vol) {
-  if (gainNode && soundState.current !== 'bowl')
-    gainNode.gain.value = (BASE_GAIN[soundState.current] || 0.2) * vol;
-  else if (gainNode)
-    gainNode.gain.value = vol;
+  if (currentAudio && soundState.current !== 'bowl') {
+    currentAudio.volume = vol;
+  }
+  if (gainNode) {
+    gainNode.gain.value = (soundState.current === 'pink' ? 0.28 : 0.15) * vol;
+  }
 }
 
 // ===== DB =====

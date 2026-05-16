@@ -1,9 +1,14 @@
-const CACHE = 'maeumsim-v5';
+const CACHE = 'maeumsim-v6';
 const ASSETS = [
   './', './index.html', './style.css', './bundle.js', './icon.svg',
   './firebase/firebase-app-compat.js',
   './firebase/firebase-auth-compat.js',
   './firebase/firebase-firestore-compat.js',
+  './audio/rain.ogg',
+  './audio/forest.ogg',
+  './audio/ocean.ogg',
+  './audio/campfire.ogg',
+  './audio/bowl.ogg',
 ];
 
 self.addEventListener('install', e => {
